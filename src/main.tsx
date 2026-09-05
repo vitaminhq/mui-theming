@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { Box, Button, ButtonGroup, CssBaseline, Stack, Typography } from '@mui/material'
 import ThemeLab from './ThemeLab'
-import ShadcnMuiDemo from './ShadcnMuiDemo'
+import ExactMaiaDemo from './ExactMaiaDemo'
 
 type DemoView = 'theme-lab' | 'shadcn-mui'
 
@@ -19,11 +19,11 @@ function App() {
         </Box>
         <ButtonGroup size="small" sx={{ '& .MuiButton-root': { textTransform: 'none', borderColor: '#3f3f46', color: '#fafafa', minHeight: 32 }, '& .MuiButton-contained': { bgcolor: '#fafafa', color: '#09090b', '&:hover': { bgcolor: '#e4e4e7' } } }}>
           <Button variant={view === 'theme-lab' ? 'contained' : 'outlined'} onClick={() => setView('theme-lab')}>Theme Lab</Button>
-          <Button variant={view === 'shadcn-mui' ? 'contained' : 'outlined'} onClick={() => setView('shadcn-mui')}>Shadcn-style MUI</Button>
+          <Button variant={view === 'shadcn-mui' ? 'contained' : 'outlined'} onClick={() => setView('shadcn-mui')}>Exact Maia / MUI</Button>
         </ButtonGroup>
       </Stack>
     </Box>
-    {view === 'theme-lab' ? <ThemeLab /> : <ShadcnMuiDemo />}
+    {view === 'theme-lab' ? <ThemeLab /> : <ExactMaiaDemo />}
   </>
 }
 
