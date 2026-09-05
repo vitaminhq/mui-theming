@@ -163,8 +163,7 @@ export function createAppTheme(t: ThemeTokens) {
   const isGlass = t.panelStyle === 'glass'
   const isAbove = t.labelStyle === 'above'
   const isInside = t.labelStyle === 'inside'
-  const isFloatInside = t.labelStyle === 'float-inside'
-  const fieldHeight = isAbove ? t.controlHeight : Math.max(t.controlHeight, 58)
+  const labeledFieldHeight = Math.max(t.controlHeight, 58)
 
   const softShadow = isDark ? '0 10px 30px rgba(0,0,0,.28)' : '0 10px 28px rgba(15,23,42,.07)'
   const glowShadow = `0 0 0 1px ${alpha(t.primary, .08)}, 0 16px 44px ${alpha(t.primary, isDark ? .08 : .05)}`
@@ -202,6 +201,23 @@ export function createAppTheme(t: ThemeTokens) {
     '&.MuiInputLabel-shrink': { transform: 'translate(14px, 7px) scale(.75)' },
   }
 
+  const labeledFieldRules = !isAbove ? {
+    '&:has(> .MuiInputLabel-root) .MuiOutlinedInput-root': {
+      minHeight: labeledFieldHeight,
+    },
+    '&:has(> .MuiInputLabel-root) .MuiOutlinedInput-input': {
+      paddingTop: 22,
+      paddingBottom: 7,
+    },
+    '&:has(> .MuiInputLabel-root) .MuiInputBase-multiline': {
+      paddingTop: 20,
+    },
+    '&:has(> .MuiInputLabel-root) .MuiSelect-select': {
+      paddingTop: '22px !important',
+      paddingBottom: '7px !important',
+    },
+  } : {}
+
   return createTheme({
     palette: {
       mode: t.mode,
@@ -224,7 +240,7 @@ export function createAppTheme(t: ThemeTokens) {
     components: {
       MuiCssBaseline: { styleOverrides: { body: { backgroundImage: isGlass ? glassPageBackground : 'none', backgroundAttachment: isGlass ? 'fixed' : undefined }, '*': { boxSizing: 'border-box' }, '::selection': { background: alpha(t.primary, .25) } } },
       MuiButtonBase: { defaultProps: { disableRipple: true } },
-      MuiFormControl: { styleOverrides: { root: isAbove ? { gap: 6 } : {} } },
+      MuiFormControl: { styleOverrides: { root: { ...(isAbove ? { gap: 6 } : {}), ...labeledFieldRules } } },
       MuiInputLabel: { defaultProps: isInside ? { shrink: true } : {}, styleOverrides: { root: labelRoot } },
       MuiAppBar: { styleOverrides: { root: { backgroundImage: 'none', ...(isGlass ? { background: glassSurface, backdropFilter: glassBackdrop, WebkitBackdropFilter: glassBackdrop, borderColor: t.border } : {}) } } },
       MuiButton: {
@@ -241,7 +257,7 @@ export function createAppTheme(t: ThemeTokens) {
       MuiOutlinedInput: {
         styleOverrides: {
           root: {
-            minHeight: fieldHeight,
+            minHeight: t.controlHeight,
             borderRadius: isGlass ? 999 : t.radius,
             backgroundColor: t.surfaceRaised,
             ...(isGlass ? { backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' } : {}),
@@ -251,11 +267,8 @@ export function createAppTheme(t: ThemeTokens) {
             '&.Mui-focused': { boxShadow: `0 0 0 3px ${alpha(t.primary, .14)}` },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: t.primary, borderWidth: 1 },
           },
-          input: !isAbove ? { paddingTop: 22, paddingBottom: 7 } : {},
-          multiline: !isAbove ? { paddingTop: 20 } : {},
         },
       },
-      MuiSelect: { styleOverrides: { select: !isAbove ? { paddingTop: '22px !important', paddingBottom: '7px !important' } : {} } },
       MuiFormHelperText: { styleOverrides: { root: isAbove ? { marginLeft: 2 } : {} } },
       MuiChip: { styleOverrides: { root: { borderRadius: isGlass ? 999 : Math.max(4, t.radius - 2), fontWeight: 650, ...(isGlass ? { backdropFilter: 'blur(14px)' } : {}) } } },
       MuiDialog: { styleOverrides: { paper: { borderRadius: isGlass ? 32 : t.radius + 4, boxShadow: panelShadow, ...(isGlass ? { background: glassSurface, backdropFilter: glassBackdrop, WebkitBackdropFilter: glassBackdrop } : {}) } } },
