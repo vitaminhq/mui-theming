@@ -13,7 +13,7 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
-import { createAppTheme, presets, tokensForPreset, type ThemeTokens } from './theme'
+import { createAppTheme, presets, tokensForPreset, type LabelStyle, type ThemeTokens } from './theme'
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <Box component="section" sx={{ mb: 5 }}>
@@ -81,18 +81,39 @@ export default function ThemeLab() {
             <ColorField label="Muted" value={tokens.muted} onChange={v => update('muted', v)} />
             <ColorField label="Border" value={tokens.border} onChange={v => update('border', v)} />
           </Stack>
+
           <Divider sx={{ my: 3 }} />
           <Typography variant="overline" color="text.secondary">Shape & density</Typography>
           <Typography variant="body2" sx={{ mt: 1 }}>Radius: {tokens.radius}px</Typography>
-          <Slider min={2} max={20} value={tokens.radius} onChange={(_, v) => update('radius', v as number)} />
-          <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mt: 1 }}><Chip size="small" label={tokens.density} /><Chip size="small" label={`${tokens.controlHeight}px controls`} /><Chip size="small" label={`${tokens.panelStyle} panels`} /></Stack>
+          <Slider min={2} max={32} value={tokens.radius} onChange={(_, v) => update('radius', v as number)} />
+
+          <FormControl fullWidth size="small" sx={{ mt: 2 }}>
+            <InputLabel>Input labels</InputLabel>
+            <Select
+              label="Input labels"
+              value={tokens.labelStyle}
+              onChange={(e) => update('labelStyle', e.target.value as LabelStyle)}
+            >
+              <MenuItem value="above">Above</MenuItem>
+              <MenuItem value="inside">Inside</MenuItem>
+              <MenuItem value="float-inside">Float inside</MenuItem>
+            </Select>
+            <FormHelperText>Controls how labels are positioned for TextField, Select and Autocomplete.</FormHelperText>
+          </FormControl>
+
+          <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mt: 2 }}>
+            <Chip size="small" label={tokens.density} />
+            <Chip size="small" label={`${tokens.controlHeight}px controls`} />
+            <Chip size="small" label={`${tokens.panelStyle} panels`} />
+            <Chip size="small" label={`${tokens.labelStyle} labels`} />
+          </Stack>
         </Box>
 
         <Box component="main" sx={{ p: { xs: 2, md: 4, xl: 5 }, minWidth: 0 }}>
           <Box sx={{ mb: 5 }}>
             <Typography variant="overline" color="primary.main">{presetName}</Typography>
             <Typography variant="h4">Component showcase</Typography>
-            <Typography color="text.secondary" sx={{ mt: 1, maxWidth: 760 }}>Switch between genuinely different visual languages—terminal, professional derivatives, crypto-native neon, institutional exchange, or Maia—and tune the semantic tokens live.</Typography>
+            <Typography color="text.secondary" sx={{ mt: 1, maxWidth: 760 }}>Switch between genuinely different visual languages and tune semantic tokens, radius, density and input-label treatment live.</Typography>
             <Stack direction="row" gap={1} sx={{ mt: 2 }} flexWrap="wrap"><Chip size="small" color="primary" label="BTC-PERP 67,842.1" /><Chip size="small" color="success" label="+2.84%" /><Chip size="small" variant="outlined" label="Funding 0.0100%" /><Chip size="small" color="secondary" label="20x leverage" /></Stack>
           </Box>
 
