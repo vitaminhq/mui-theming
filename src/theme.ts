@@ -80,14 +80,24 @@ const thirdPartyByDisplayName = new Map(
   thirdPartyEntries.map((entry) => [`${THIRD_PARTY_PREFIX}${entry.name ?? 'Unnamed'}`, entry]),
 )
 
-export const presetNames = [...Object.keys(presets), ...thirdPartyByDisplayName.keys()]
+for (const [displayName, source] of thirdPartyByDisplayName) {
+  presets[displayName] = {
+    description: source.description
+      ? `${source.description} Adapted from mui-theme-collection and normalized for this lab.`
+      : 'Third-party mui-theme-collection preset, normalized to fill missing design-system tokens.',
+    radius: 8,
+    controlHeight: 38,
+    density: 'compact',
+    panelStyle: 'soft',
+    light: presets.Maia.light,
+    dark: presets.Maia.dark,
+  }
+}
+
+export const presetNames = Object.keys(presets)
 
 export function getPresetDescription(name: string): string {
-  if (presets[name]) return presets[name].description
-  const source = thirdPartyByDisplayName.get(name)
-  return source?.description
-    ? `${source.description} Adapted from mui-theme-collection and normalized for this lab.`
-    : 'Third-party mui-theme-collection preset, normalized to fill missing design-system tokens.'
+  return presets[name]?.description ?? presets.Maia.description
 }
 
 function normalizeThirdParty(name: string, requestedMode: PaletteMode): ThemeTokens {
