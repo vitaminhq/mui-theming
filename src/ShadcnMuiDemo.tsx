@@ -1,157 +1,158 @@
 import React, { useMemo, useState } from 'react'
 import {
-  Alert, Avatar, Box, Button, Card, CardContent, Checkbox, Chip, Dialog, DialogActions,
-  DialogContent, DialogTitle, Divider, FormControlLabel, IconButton, InputAdornment,
-  MenuItem, Paper, Radio, RadioGroup, Select, Slider, Stack, Switch, Tab, Tabs,
-  TextField, ThemeProvider, Tooltip, Typography, createTheme,
+  Box, Button, Card, CardContent, Checkbox, Divider, FormControlLabel, IconButton,
+  MenuItem, Select, Slider, Stack, Switch, TextField, ThemeProvider, Tooltip,
+  Typography, createTheme,
 } from '@mui/material'
+import MenuIcon from '@mui/icons-material/Menu'
 import SearchIcon from '@mui/icons-material/Search'
-import AddIcon from '@mui/icons-material/Add'
-import MoreHorizontalIcon from '@mui/icons-material/MoreHoriz'
-import CheckIcon from '@mui/icons-material/Check'
+import GitHubIcon from '@mui/icons-material/GitHub'
+import CodeIcon from '@mui/icons-material/Code'
 import CloseIcon from '@mui/icons-material/Close'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import SettingsIcon from '@mui/icons-material/Settings'
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
-import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
+import AddIcon from '@mui/icons-material/Add'
+import ShuffleIcon from '@mui/icons-material/Shuffle'
 
-const paletteOptions = [
-  ['Neutral', '#18181b'], ['Blue', '#2563eb'], ['Violet', '#7c3aed'], ['Rose', '#e11d48'], ['Orange', '#ea580c'], ['Green', '#16a34a'],
-] as const
+const palettes = {
+  Neutral: { base: '#a1a1aa', accent: '#e4e4e7' },
+  Olive: { base: '#a3a38b', accent: '#a3a38b' },
+  Amber: { base: '#d97706', accent: '#d97706' },
+  Stone: { base: '#a8a29e', accent: '#a8a29e' },
+}
 
-function makeTheme(mode: 'light' | 'dark', accent: string, radius: number) {
+type PaletteName = keyof typeof palettes
+
+function buildTheme(mode: 'light' | 'dark', base: PaletteName, themeColor: PaletteName, radius: number) {
   const dark = mode === 'dark'
-  const bg = dark ? '#0a0a0a' : '#ffffff'
-  const paper = dark ? '#0f0f10' : '#ffffff'
-  const border = dark ? '#27272a' : '#e4e4e7'
-  const text = dark ? '#fafafa' : '#09090b'
-  const muted = dark ? '#a1a1aa' : '#71717a'
+  const baseColor = palettes[base].base
+  const accent = palettes[themeColor].accent
   return createTheme({
     palette: {
       mode,
-      primary: { main: accent },
-      background: { default: bg, paper },
-      text: { primary: text, secondary: muted },
-      divider: border,
-      success: { main: '#16a34a' },
-      error: { main: '#dc2626' },
+      primary: { main: dark ? accent : themeColor === 'Neutral' ? '#18181b' : accent },
+      background: { default: dark ? '#0b0b0a' : '#fafafa', paper: dark ? '#151512' : '#ffffff' },
+      text: { primary: dark ? '#f5f5f4' : '#18181b', secondary: dark ? '#a8a29e' : '#71717a' },
+      divider: dark ? '#292923' : '#e4e4e7',
     },
     shape: { borderRadius: radius },
     typography: {
       fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      fontSize: 14,
-      button: { textTransform: 'none', fontWeight: 500 },
-      h5: { fontWeight: 700, letterSpacing: '-0.025em' },
-      h6: { fontWeight: 650, letterSpacing: '-0.02em' },
+      fontSize: 13,
+      button: { textTransform: 'none', fontWeight: 500, fontSize: 12 },
     },
     shadows: Array(25).fill('none') as any,
     components: {
-      MuiCssBaseline: { styleOverrides: { body: { backgroundImage: 'none' } } },
       MuiButtonBase: { defaultProps: { disableRipple: true } },
-      MuiPaper: { styleOverrides: { root: { backgroundImage: 'none', border: `1px solid ${border}` } } },
-      MuiButton: { styleOverrides: { root: { minHeight: 36, borderRadius: radius, paddingInline: 14, boxShadow: 'none' }, outlined: { borderColor: border } } },
-      MuiOutlinedInput: { styleOverrides: { root: { minHeight: 36, borderRadius: radius, backgroundColor: paper, '& .MuiOutlinedInput-notchedOutline': { borderColor: border }, '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: dark ? '#3f3f46' : '#a1a1aa' }, '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: accent, borderWidth: 1 }, '&.Mui-focused': { boxShadow: `0 0 0 3px ${accent}20` } } } },
-      MuiCard: { styleOverrides: { root: { border: `1px solid ${border}`, boxShadow: 'none' } } },
-      MuiChip: { styleOverrides: { root: { height: 28, borderRadius: Math.max(5, radius - 2), fontWeight: 500 } } },
-      MuiTabs: { styleOverrides: { root: { minHeight: 36 }, indicator: { height: 2 } } },
-      MuiTab: { styleOverrides: { root: { minHeight: 36, minWidth: 0, paddingInline: 12, textTransform: 'none', fontWeight: 500 } } },
-      MuiDialog: { styleOverrides: { paper: { borderRadius: radius + 2 } } },
-      MuiMenuItem: { styleOverrides: { root: { minHeight: 34, borderRadius: radius } } },
+      MuiCard: { styleOverrides: { root: { border: `1px solid ${dark ? '#292923' : '#e4e4e7'}`, boxShadow: 'none', backgroundImage: 'none' } } },
+      MuiButton: { styleOverrides: { root: { minHeight: 32, borderRadius: radius, boxShadow: 'none', paddingInline: 12 }, outlined: { borderColor: dark ? '#34342d' : '#d4d4d8' } } },
+      MuiOutlinedInput: { styleOverrides: { root: { minHeight: 34, borderRadius: radius, fontSize: 12, background: dark ? '#1b1b17' : '#fff', '& .MuiOutlinedInput-notchedOutline': { borderColor: dark ? '#3a3a32' : '#d4d4d8' } } } },
+      MuiSelect: { styleOverrides: { select: { paddingBlock: 7 } } },
+      MuiSwitch: { styleOverrides: { root: { width: 34, height: 20, padding: 0 }, switchBase: { padding: 2, '&.Mui-checked': { transform: 'translateX(14px)' } }, thumb: { width: 16, height: 16 }, track: { borderRadius: 10 } } },
+      MuiSlider: { styleOverrides: { root: { paddingBlock: 8 }, thumb: { width: 13, height: 13 }, rail: { opacity: .18 }, track: { border: 0 } } },
+      MuiCheckbox: { styleOverrides: { root: { padding: 3 } } },
     },
   })
 }
 
-const Label = ({ children }: { children: React.ReactNode }) => <Typography sx={{ fontSize: 12, fontWeight: 600, mb: .75 }}>{children}</Typography>
+const TinyLabel = ({ children }: { children: React.ReactNode }) => <Typography sx={{ fontSize: 9, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '.08em' }}>{children}</Typography>
+const CardTitle = ({ children }: { children: React.ReactNode }) => <Typography sx={{ fontSize: 15, fontWeight: 650, letterSpacing: '-.01em' }}>{children}</Typography>
+const CardDesc = ({ children }: { children: React.ReactNode }) => <Typography color="text.secondary" sx={{ fontSize: 11, lineHeight: 1.45 }}>{children}</Typography>
+
+function SettingRow({ label, value, dot }: { label: string; value: string; dot?: string }) {
+  return <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1.2, p: 1.2 }}>
+    <Stack direction="row" justifyContent="space-between" alignItems="center">
+      <Box><Typography sx={{ fontSize: 9, color: 'text.secondary' }}>{label}</Typography><Typography sx={{ fontSize: 12 }}>{value}</Typography></Box>
+      {dot && <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: dot, border: '1px solid', borderColor: 'divider' }} />}
+    </Stack>
+  </Box>
+}
+
+function ContributionHistory() {
+  const bars = [60, 80, 65, 95, 50, 100]
+  return <Card><CardContent sx={{ p: 2.2 }}><CardTitle>Contribution History</CardTitle><CardDesc>Last 6 months of activity</CardDesc>
+    <Stack direction="row" alignItems="end" spacing={1.3} sx={{ height: 145, mt: 2.2 }}>{bars.map((v, i) => <Stack key={i} sx={{ flex: 1, height: '100%' }} justifyContent="end"><Box sx={{ height: `${v}%`, bgcolor: 'primary.main', opacity: .78, borderRadius: '5px 5px 0 0' }} /><Typography sx={{ mt: .7, fontSize: 9, color: 'text.secondary', textAlign: 'center' }}>{['Dec','Jan','Feb','Mar','Apr','May'][i]}</Typography></Stack>)}</Stack>
+    <Box sx={{ mt: 1.8, bgcolor: 'action.hover', borderRadius: 1.2, p: 1.3 }}><TinyLabel>Upcoming</TinyLabel><Typography fontWeight={650}>May 25, 2024</Typography><CardDesc>$1,000 scheduled</CardDesc></Box>
+    <Box sx={{ mt: 1, bgcolor: 'action.hover', borderRadius: 1.2, p: 1.3 }}><TinyLabel>Auto-save plan</TinyLabel><Typography fontWeight={650}>Accelerated</Typography><CardDesc>Recurring weekly</CardDesc></Box>
+    <Button fullWidth variant="contained" sx={{ mt: 1.6 }}>View Full Report</Button>
+  </CardContent></Card>
+}
+
+function PayoutThreshold() {
+  const [amount, setAmount] = useState(2500)
+  return <Card><CardContent sx={{ p: 2.2 }}><Stack direction="row" justifyContent="space-between"><Box><CardTitle>Payout Threshold</CardTitle><CardDesc>Set the minimum balance required<br/>before a payout is triggered.</CardDesc></Box><IconButton size="small"><CloseIcon sx={{ fontSize: 15 }}/></IconButton></Stack>
+    <Typography sx={{ fontSize: 10, fontWeight: 600, mt: 2 }}>Preferred Currency</Typography><Select fullWidth size="small" defaultValue="usd"><MenuItem value="usd">USD — United States Dollar</MenuItem></Select>
+    <Stack direction="row" justifyContent="space-between" alignItems="end" sx={{ mt: 2 }}><Typography sx={{ fontSize: 10, fontWeight: 600, maxWidth: 120 }}>Minimum Payout Amount</Typography><Typography sx={{ fontSize: 22, fontWeight: 700 }}>${amount.toFixed(2)}</Typography></Stack>
+    <Slider min={50} max={10000} value={amount} onChange={(_,v)=>setAmount(v as number)} /><Stack direction="row" justifyContent="space-between"><CardDesc>$50 (MIN)</CardDesc><CardDesc>$10,000 (MAX)</CardDesc></Stack>
+    <Typography sx={{ fontSize: 10, fontWeight: 600, mt: 2 }}>Notes</Typography><TextField multiline rows={3} fullWidth placeholder="Add any notes for this payout configuration..." />
+    <Button fullWidth variant="contained" sx={{ mt: 1.8 }}>Save Threshold</Button>
+  </CardContent></Card>
+}
+
+function ClaimableBalance() {
+  return <Card><CardContent sx={{ p: 2.2 }}><CardDesc>Claimable Balance</CardDesc><Typography sx={{ fontSize: 39, lineHeight: 1.05, letterSpacing: '-.04em' }}>$0.00</Typography><Typography sx={{ fontSize: 9, mt: .5 }}>🟡 Pending Setup</Typography>
+    <Box sx={{ bgcolor: 'action.hover', borderRadius: 1.2, p: 1.4, mt: 1.7 }}><Stack spacing={1}><Stack direction="row" justifyContent="space-between"><CardDesc>Net Royalties</CardDesc><Typography sx={{fontSize:11}}>$0.00</Typography></Stack><Stack direction="row" justifyContent="space-between"><CardDesc>Processing Fee</CardDesc><Typography sx={{fontSize:11}}>-$0.00</Typography></Stack><Divider/><Stack direction="row" justifyContent="space-between"><CardDesc>Total Ready to Claim</CardDesc><Typography sx={{fontSize:11,fontWeight:700}}>$0.00 USD</Typography></Stack></Stack></Box>
+    <CardDesc><Box component="span" sx={{ display:'block', mt: 2 }}>Once your bank is connected, balances over $10.00 are automatically eligible for monthly distribution on the 15th of each month.</Box></CardDesc>
+  </CardContent></Card>
+}
+
+function Preferences() {
+  const [stats,setStats]=useState(true); const [email,setEmail]=useState(true)
+  return <Card><CardContent sx={{ p: 2.2 }}><Stack direction="row" justifyContent="space-between"><Box><CardTitle>Preferences</CardTitle><CardDesc>Manage your account settings<br/>and notifications.</CardDesc></Box><IconButton size="small"><CloseIcon sx={{fontSize:15}}/></IconButton></Stack>
+    <Typography sx={{fontSize:10,fontWeight:600,mt:2}}>Default Currency</Typography><Select fullWidth size="small" defaultValue="usd"><MenuItem value="usd">USD — United States Dollar</MenuItem></Select><Divider sx={{my:1.7}}/>
+    <Stack direction="row" justifyContent="space-between"><Box><Typography sx={{fontSize:10,fontWeight:600}}>Public Statistics</Typography><CardDesc>Allow others to see your total stream count and listening activity</CardDesc></Box><Switch checked={stats} onChange={e=>setStats(e.target.checked)}/></Stack><Divider sx={{my:1.5}}/>
+    <Stack direction="row" justifyContent="space-between"><Box><Typography sx={{fontSize:10,fontWeight:600}}>Email Notifications</Typography><CardDesc>Monthly royalty reports and distribution updates</CardDesc></Box><Switch checked={email} onChange={e=>setEmail(e.target.checked)}/></Stack>
+    <Stack direction="row" justifyContent="space-between" sx={{mt:1.8}}><Button variant="outlined">Reset</Button><Button variant="contained">Save Preferences</Button></Stack>
+  </CardContent></Card>
+}
+
+function EmptyDistributeTrack() { return <Card><CardContent sx={{ p: 2.5, textAlign:'center' }}><Box sx={{mx:'auto',width:32,height:32,borderRadius:1,bgcolor:'action.hover',display:'grid',placeItems:'center'}}><AddIcon fontSize="small"/></Box><Typography fontWeight={600} sx={{mt:2}}>Distribute Track</Typography><CardDesc>Upload your first master to<br/>start reaching listeners on<br/>Spotify, Apple Music, and more.</CardDesc><Button variant="contained" sx={{mt:1.6}}>Create Release</Button></CardContent></Card> }
+
+function QRCode() {
+  const cells = Array.from({length: 21*21}, (_,i) => ((i*7 + Math.floor(i/21)*11 + i%5) % 4) !== 0)
+  return <Box sx={{display:'grid',gridTemplateColumns:'repeat(21,5px)',gridAutoRows:'5px',bgcolor:'#fff',p:1.2,borderRadius:1,width:'fit-content',mx:'auto'}}>{cells.map((on,i)=><Box key={i} sx={{bgcolor:on?'#000':'#fff'}}/>)}</Box>
+}
+
+function QrConnect() { return <Card><CardContent sx={{p:2.5,textAlign:'center'}}><QRCode/><Typography fontWeight={600} sx={{mt:2}}>Scan to connect your mobile device</Typography><CardDesc>Open the Ledger mobile app and scan this<br/>code to link your device.</CardDesc><Button fullWidth sx={{mt:2,bgcolor:'action.hover'}}>Got It</Button></CardContent></Card> }
+
+function DividendIncome() { return <Card><CardContent sx={{p:2.2}}><Stack direction="row" justifyContent="space-between"><Box><CardTitle>Q2 Dividend Income</CardTitle><CardDesc>Quarterly dividend payouts across<br/>your portfolio holdings.</CardDesc></Box><IconButton size="small"><CloseIcon sx={{fontSize:15}}/></IconButton></Stack>{[['Vanguard VIG','450 Shares'],['S&P 500 VOO','112 Shares'],['Apple AAPL','85 Shares'],['Realty Income','320 Shares']].map(([a,b])=><Box key={a} sx={{p:1.3,bgcolor:'action.hover',borderRadius:1.2,mt:1}}><Typography sx={{fontSize:11}}>{a}</Typography><CardDesc>{b}</CardDesc></Box>)}</CardContent></Card> }
+
+function DonutCard() { return <Card><CardContent sx={{p:2.2}}><Box sx={{width:145,height:145,borderRadius:'50%',background:'conic-gradient(currentColor 0 80%, transparent 80% 100%)',color:'primary.main',opacity:.6,mx:'auto',position:'relative'}}><Box sx={{position:'absolute',inset:18,borderRadius:'50%',bgcolor:'background.paper',display:'grid',placeItems:'center',textAlign:'center'}}><Box><Typography fontWeight={700} sx={{fontSize:19}}>$24,000</Typography><CardDesc>80% of $30,000</CardDesc></Box></Box></Box><Divider sx={{my:2}}/>{[['Projected Finish','October 2024'],['Monthly Average','$1,250'],['Top Contributor','Auto-Transfer']].map(([a,b])=><Stack key={a} direction="row" justifyContent="space-between" sx={{py:.7}}><CardDesc>{a}</CardDesc><Typography sx={{fontSize:11,fontWeight:600}}>{b}</Typography></Stack>)}</CardContent></Card> }
 
 export default function ShadcnMuiDemo() {
-  const [mode, setMode] = useState<'light' | 'dark'>('light')
-  const [accentName, setAccentName] = useState('Neutral')
-  const [accent, setAccent] = useState('#18181b')
-  const [radius, setRadius] = useState(8)
-  const [tab, setTab] = useState(0)
-  const [dialog, setDialog] = useState(false)
-  const theme = useMemo(() => makeTheme(mode, accent, radius), [mode, accent, radius])
+  const [mode,setMode]=useState<'light'|'dark'>('dark')
+  const [style,setStyle]=useState('Nova')
+  const [base,setBase]=useState<PaletteName>('Neutral')
+  const [themeColor,setThemeColor]=useState<PaletteName>('Neutral')
+  const [chart,setChart]=useState<PaletteName>('Neutral')
+  const [radius,setRadius]=useState(8)
+  const theme=useMemo(()=>buildTheme(mode,base,themeColor,radius),[mode,base,themeColor,radius])
+  const setPalette=(setter:(v:PaletteName)=>void,value:string)=>setter(value as PaletteName)
 
-  return <ThemeProvider theme={theme}>
-    <Box sx={{ bgcolor: 'background.default', color: 'text.primary', minHeight: 'calc(100vh - 58px)' }}>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', xl: '280px minmax(0,1fr)' }, maxWidth: 1700, mx: 'auto' }}>
-        <Box component="aside" sx={{ p: 2.5, borderRight: { xl: '1px solid' }, borderColor: 'divider', position: { xl: 'sticky' }, top: 58, height: { xl: 'calc(100vh - 58px)' }, overflowY: 'auto' }}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2.5 }}>
-            <Box><Typography fontWeight={700}>Customize</Typography><Typography variant="caption" color="text.secondary">shadcn-style controls</Typography></Box>
-            <Tooltip title={mode === 'dark' ? 'Use light mode' : 'Use dark mode'}><IconButton size="small" onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}>{mode === 'dark' ? <LightModeOutlinedIcon fontSize="small"/> : <DarkModeOutlinedIcon fontSize="small"/>}</IconButton></Tooltip>
-          </Stack>
-
-          <Label>Style</Label>
-          <Select fullWidth size="small" value="New York" sx={{ mb: 2 }}><MenuItem value="New York">New York</MenuItem></Select>
-
-          <Label>Base color</Label>
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: .75, mb: 2.25 }}>
-            {paletteOptions.map(([name, color]) => <Button key={name} size="small" variant={accentName === name ? 'contained' : 'outlined'} onClick={() => { setAccentName(name); setAccent(color) }} sx={{ justifyContent: 'flex-start', gap: 1 }}><Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: color, border: '1px solid', borderColor: 'divider' }} />{name}</Button>)}
-          </Box>
-
-          <Label>Theme radius</Label>
-          <Stack direction="row" spacing={.75} sx={{ mb: 2.25 }}>{[4, 8, 12, 16].map(r => <Button key={r} size="small" variant={radius === r ? 'contained' : 'outlined'} onClick={() => setRadius(r)}>{r === 4 ? '0.3' : r === 8 ? '0.5' : r === 12 ? '0.75' : '1.0'}</Button>)}</Stack>
-
-          <Label>Accent</Label>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2.25 }}><Box component="input" type="color" value={accent} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccent(e.target.value)} sx={{ width: 34, height: 34, p: 0, border: 0, bgcolor: 'transparent' }}/><TextField size="small" value={accent} onChange={e => setAccent(e.target.value)} fullWidth /></Stack>
-
-          <Divider sx={{ my: 2.25 }} />
-          <Button fullWidth variant="outlined" startIcon={<ContentCopyIcon fontSize="small"/>}>Copy theme</Button>
-        </Box>
-
-        <Box component="main" sx={{ minWidth: 0, p: { xs: 1.5, md: 2.5 } }}>
-          <Stack direction={{ xs: 'column', md: 'row' }} alignItems={{ md: 'center' }} justifyContent="space-between" gap={1.5} sx={{ mb: 2 }}>
-            <Box><Typography variant="h5">MUI, styled like shadcn</Typography><Typography color="text.secondary" sx={{ fontSize: 13 }}>A component playground using MUI primitives with a shadcn-inspired visual system.</Typography></Box>
-            <Stack direction="row" spacing={1}><Button variant="outlined" startIcon={<SettingsIcon fontSize="small"/>}>Settings</Button><Button variant="contained">Deploy</Button></Stack>
-          </Stack>
-
-          <Paper sx={{ overflow: 'hidden' }}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 1.5, py: 1, borderBottom: '1px solid', borderColor: 'divider', bgcolor: t => t.palette.mode === 'dark' ? '#0d0d0e' : '#fafafa' }}>
-              <Tabs value={tab} onChange={(_, v) => setTab(v)}><Tab label="Preview"/><Tab label="Components"/><Tab label="Examples"/></Tabs>
-              <Stack direction="row" spacing={.5}><Chip label="MUI" variant="outlined"/><IconButton size="small"><MoreHorizontalIcon fontSize="small"/></IconButton></Stack>
-            </Stack>
-
-            <Box sx={{ p: { xs: 2, md: 3.5 }, bgcolor: 'background.default' }}>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(0,1.2fr) minmax(320px,.8fr)' }, gap: 3 }}>
-                <Stack spacing={3}>
-                  <Box>
-                    <Typography variant="h6" sx={{ mb: .5 }}>Account</Typography><Typography color="text.secondary" sx={{ fontSize: 13, mb: 2 }}>Make changes to your account here. Click save when you're done.</Typography>
-                    <Stack spacing={1.5}><Box><Label>Name</Label><TextField fullWidth size="small" defaultValue="Satoshi Nakamoto"/></Box><Box><Label>Username</Label><TextField fullWidth size="small" defaultValue="satoshi"/></Box><Button variant="contained" sx={{ alignSelf: 'flex-start' }}>Save changes</Button></Stack>
-                  </Box>
-
-                  <Divider />
-
-                  <Box><Typography variant="h6" sx={{ mb: 1.5 }}>Controls</Typography><Stack direction="row" gap={1} flexWrap="wrap"><Button variant="contained">Primary</Button><Button variant="outlined">Outline</Button><Button>Ghost</Button><Button color="error">Destructive</Button><IconButton><AddIcon fontSize="small"/></IconButton></Stack></Box>
-
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
-                    <TextField size="small" label="Email" placeholder="m@example.com" />
-                    <TextField size="small" placeholder="Search..." InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small"/></InputAdornment> }} />
-                    <Select size="small" defaultValue="btc"><MenuItem value="btc">BTC / USD</MenuItem><MenuItem value="eth">ETH / USD</MenuItem></Select>
-                    <Stack direction="row" alignItems="center" spacing={1}><Switch defaultChecked/><Typography sx={{ fontSize: 13 }}>Airplane Mode</Typography></Stack>
-                    <FormControlLabel control={<Checkbox defaultChecked/>} label="Remember me" />
-                    <RadioGroup row defaultValue="comfortable"><FormControlLabel value="default" control={<Radio/>} label="Default"/><FormControlLabel value="comfortable" control={<Radio/>} label="Comfortable"/></RadioGroup>
-                  </Box>
-
-                  <Box><Label>Position size</Label><Slider defaultValue={42}/></Box>
-                  <Alert severity="success" icon={<CheckIcon fontSize="inherit"/>}>Your order has been submitted successfully.</Alert>
-                </Stack>
-
-                <Stack spacing={2}>
-                  <Card><CardContent><Typography variant="h6">Create account</Typography><Typography color="text.secondary" sx={{ fontSize: 13, mb: 2 }}>Enter your details below to create your account.</Typography><Stack spacing={1.25}><TextField size="small" label="Email"/><TextField size="small" label="Password" type="password"/><Button variant="contained" fullWidth>Create account</Button><Button variant="outlined" fullWidth>Continue with GitHub</Button></Stack></CardContent></Card>
-
-                  <Card><CardContent><Stack direction="row" justifyContent="space-between" alignItems="center"><Box><Typography sx={{ fontSize: 13, color: 'text.secondary' }}>Total Balance</Typography><Typography variant="h5">$12,405.32</Typography></Box><Avatar sx={{ width: 36, height: 36 }}>₿</Avatar></Stack><Divider sx={{ my: 2 }}/><Stack direction="row" justifyContent="space-between"><Box><Typography variant="caption" color="text.secondary">Available</Typography><Typography fontWeight={600}>$8,420.20</Typography></Box><Box><Typography variant="caption" color="text.secondary">PnL</Typography><Typography fontWeight={600} color="success.main">+$642.18</Typography></Box></Stack></CardContent></Card>
-
-                  <Paper sx={{ p: 2 }}><Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}><Box><Typography fontWeight={650}>Team Members</Typography><Typography variant="caption" color="text.secondary">Invite your team members to collaborate.</Typography></Box><Button size="small" variant="outlined">Invite</Button></Stack>{['Ada Lovelace','Grace Hopper','Linus Torvalds'].map((n,i) => <Stack key={n} direction="row" alignItems="center" justifyContent="space-between" sx={{ py: 1 }}><Stack direction="row" spacing={1.25} alignItems="center"><Avatar sx={{ width: 32, height: 32 }}>{n[0]}</Avatar><Box><Typography sx={{ fontSize: 13, fontWeight: 600 }}>{n}</Typography><Typography variant="caption" color="text.secondary">{['Owner','Developer','Viewer'][i]}</Typography></Box></Stack><Chip size="small" label={['Admin','Member','Member'][i]} variant="outlined"/></Stack>)}</Paper>
-
-                  <Button variant="outlined" onClick={() => setDialog(true)}>Open dialog example</Button>
-                </Stack>
-              </Box>
-            </Box>
-          </Paper>
+  return <ThemeProvider theme={theme}><Box sx={{minHeight:'calc(100vh - 58px)',bgcolor:'background.default',color:'text.primary'}}>
+    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{height:48,px:2,borderBottom:'1px solid',borderColor:'divider',position:'sticky',top:58,zIndex:5,bgcolor:'background.default'}}>
+      <Stack direction="row" spacing={1} alignItems="center"><MenuIcon sx={{fontSize:16}}/><Typography sx={{fontSize:12,fontWeight:650}}>Menu</Typography></Stack>
+      <Stack direction="row" spacing={1} alignItems="center"><TextField size="small" placeholder="Search..." sx={{width:135}} InputProps={{startAdornment:<SearchIcon sx={{fontSize:13,mr:.5,color:'text.secondary'}}/>}}/><GitHubIcon sx={{fontSize:15}}/><Typography sx={{fontSize:10}}>123K</Typography><Divider orientation="vertical" flexItem/><Button variant="outlined">Open in v0</Button><Button variant="contained" startIcon={<CodeIcon sx={{fontSize:13}}/>}>Get Code</Button></Stack>
+    </Stack>
+    <Box sx={{display:'grid',gridTemplateColumns:{xs:'1fr',md:'150px minmax(0,1fr)'},gap:2,p:2}}>
+      <Box component="aside" sx={{position:{md:'sticky'},top:{md:122},alignSelf:'start',border:'1px solid',borderColor:'divider',borderRadius:2,overflow:'hidden',bgcolor:'background.paper'}}>
+        <Box sx={{p:1,borderBottom:'1px solid',borderColor:'divider'}}><Button fullWidth variant="outlined" sx={{justifyContent:'space-between'}}>Menu <MenuIcon sx={{fontSize:14}}/></Button></Box>
+        <Stack spacing={.9} sx={{p:1}}>
+          <Box onClick={()=>setStyle(style==='Nova'?'Maia':'Nova')} sx={{cursor:'pointer'}}><SettingRow label="Style" value={style} dot={style==='Nova'?'#fff':'#a3a38b'}/></Box>
+          <Box onClick={()=>setPalette(setBase,base==='Neutral'?'Olive':'Neutral')} sx={{cursor:'pointer'}}><SettingRow label="Base Color" value={base} dot={palettes[base].base}/></Box>
+          <Box onClick={()=>setPalette(setThemeColor,themeColor==='Neutral'?'Amber':'Neutral')} sx={{cursor:'pointer'}}><SettingRow label="Theme" value={themeColor} dot={palettes[themeColor].accent}/></Box>
+          <Box onClick={()=>setPalette(setChart,chart==='Neutral'?'Olive':'Neutral')} sx={{cursor:'pointer'}}><SettingRow label="Chart Color" value={chart} dot={palettes[chart].base}/></Box>
+          <SettingRow label="Heading" value="Inter"/><SettingRow label="Font" value="Inter"/><SettingRow label="Icon Library" value="Lucide"/><Box onClick={()=>setRadius(radius===8?12:8)} sx={{cursor:'pointer'}}><SettingRow label="Radius" value={radius===8?'Default':'Large'}/></Box><SettingRow label="Menu" value="Default / Solid"/><SettingRow label="Menu Accent" value="Subtle"/>
+          <Button variant="outlined" sx={{fontSize:9}}>--preset b6sUdwFcm</Button><Button variant="outlined">Open Preset</Button><Button variant="outlined" startIcon={<ShuffleIcon sx={{fontSize:13}}/>}>Shuffle</Button><Button variant="contained">Get Code</Button>
+          <FormControlLabel control={<Switch checked={mode==='dark'} onChange={e=>setMode(e.target.checked?'dark':'light')}/>} label={<Typography sx={{fontSize:10}}>Dark</Typography>}/>
+        </Stack>
+      </Box>
+      <Box sx={{border:'1px solid',borderColor:'divider',borderRadius:2,p:{xs:1.4,md:1.8},overflowX:'auto',bgcolor: mode==='dark' ? '#11110d' : '#f4f4f5'}}>
+        <Box sx={{display:'grid',gridTemplateColumns:{xs:'minmax(225px,1fr) minmax(225px,1fr)',xl:'repeat(4,minmax(245px,1fr))'},gap:1.5,minWidth:{xs:500,xl:1100},alignItems:'start'}}>
+          <Stack spacing={1.5}><ContributionHistory/><EmptyDistributeTrack/><QrConnect/><DividendIncome/></Stack>
+          <Stack spacing={1.5}><PayoutThreshold/><ClaimableBalance/><Preferences/><DonutCard/></Stack>
+          <Stack spacing={1.5} sx={{display:{xs:'none',xl:'flex'}}}><DividendIncome/><ContributionHistory/><EmptyDistributeTrack/></Stack>
+          <Stack spacing={1.5} sx={{display:{xs:'none',xl:'flex'}}}><Preferences/><QrConnect/><ClaimableBalance/></Stack>
         </Box>
       </Box>
-
-      <Dialog open={dialog} onClose={() => setDialog(false)} fullWidth maxWidth="xs"><DialogTitle>Edit profile</DialogTitle><DialogContent><Typography color="text.secondary" sx={{ fontSize: 13, mb: 2 }}>Make changes to your profile here.</Typography><TextField fullWidth size="small" label="Username" defaultValue="satoshi"/></DialogContent><DialogActions><Button onClick={() => setDialog(false)} startIcon={<CloseIcon fontSize="small"/>}>Cancel</Button><Button variant="contained" onClick={() => setDialog(false)}>Save changes</Button></DialogActions></Dialog>
     </Box>
-  </ThemeProvider>
+  </Box></ThemeProvider>
 }
