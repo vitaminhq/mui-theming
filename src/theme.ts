@@ -19,7 +19,7 @@ export type ThemeTokens = ThemeColors & {
   radius: number
   controlHeight: number
   density: 'compact' | 'comfortable'
-  panelStyle: 'flat' | 'soft' | 'glow'
+  panelStyle: 'flat' | 'soft' | 'glow' | 'glass'
 }
 
 export type ThemePreset = {
@@ -38,6 +38,12 @@ export const presets: Record<string, ThemePreset> = {
     radius: 10, controlHeight: 40, density: 'comfortable', panelStyle: 'flat',
     light: { primary: '#18181b', secondary: '#7c3aed', background: '#f8fafc', surface: '#ffffff', surfaceRaised: '#ffffff', foreground: '#0f172a', muted: '#64748b', border: '#e2e8f0', success: '#16a34a', error: '#dc2626' },
     dark: { primary: '#fafafa', secondary: '#a78bfa', background: '#09090b', surface: '#111113', surfaceRaised: '#18181b', foreground: '#fafafa', muted: '#a1a1aa', border: '#27272a', success: '#4ade80', error: '#fb7185' },
+  },
+  'Glassy': {
+    description: 'Material-inspired glass system from the mobile chat demo: translucent blurred surfaces, expressive radii, pill controls, and violet/cyan atmosphere.',
+    radius: 24, controlHeight: 44, density: 'comfortable', panelStyle: 'glass',
+    light: { primary: '#6558d8', secondary: '#62c7d9', background: '#ecebff', surface: 'rgba(255,255,255,.62)', surfaceRaised: 'rgba(255,255,255,.55)', foreground: '#211f36', muted: '#6f6b84', border: 'rgba(255,255,255,.72)', success: '#299b74', error: '#cf4d6f' },
+    dark: { primary: '#a99fff', secondary: '#79d8e7', background: '#111126', surface: 'rgba(34,33,58,.66)', surfaceRaised: 'rgba(45,43,74,.62)', foreground: '#f4f2ff', muted: '#aaa6c3', border: 'rgba(255,255,255,.13)', success: '#5bd1a4', error: '#ff7897' },
   },
   'Terminal Mint': {
     description: 'Dense derivatives terminal: low radius, hard borders, mint trading accent.',
@@ -169,9 +175,20 @@ export function tokensForPreset(name: string, mode: PaletteMode): ThemeTokens {
 export function createAppTheme(t: ThemeTokens) {
   const isDark = t.mode === 'dark'
   const compact = t.density === 'compact'
+  const isGlass = t.panelStyle === 'glass'
   const softShadow = isDark ? '0 10px 30px rgba(0,0,0,.28)' : '0 10px 28px rgba(15,23,42,.07)'
   const glowShadow = `0 0 0 1px ${alpha(t.primary, .08)}, 0 16px 44px ${alpha(t.primary, isDark ? .08 : .05)}`
-  const panelShadow = t.panelStyle === 'glow' ? glowShadow : t.panelStyle === 'soft' ? softShadow : 'none'
+  const glassShadow = isDark
+    ? '0 16px 44px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.08)'
+    : '0 12px 36px rgba(49,46,94,.12), inset 0 1px 0 rgba(255,255,255,.7)'
+  const panelShadow = isGlass ? glassShadow : t.panelStyle === 'glow' ? glowShadow : t.panelStyle === 'soft' ? softShadow : 'none'
+  const glassSurface = isDark
+    ? 'linear-gradient(180deg, rgba(44,42,72,.72), rgba(30,29,52,.52))'
+    : 'linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.48))'
+  const glassBackdrop = 'blur(24px) saturate(145%)'
+  const glassPageBackground = isDark
+    ? 'radial-gradient(circle at 20% 4%, rgba(128,105,230,.25), transparent 31%), radial-gradient(circle at 85% 24%, rgba(69,174,191,.18), transparent 34%), linear-gradient(160deg,#111126 0%,#12242a 48%,#211628 100%)'
+    : 'radial-gradient(circle at 20% 4%, rgba(157,132,255,.42), transparent 31%), radial-gradient(circle at 85% 24%, rgba(94,211,221,.34), transparent 34%), linear-gradient(160deg,#f5f1ff 0%,#e9f5f7 48%,#f8eff7 100%)'
 
   return createTheme({
     palette: {
@@ -196,26 +213,27 @@ export function createAppTheme(t: ThemeTokens) {
     },
     shadows: Array(25).fill('none') as any,
     components: {
-      MuiCssBaseline: { styleOverrides: { body: { backgroundImage: 'none' }, '*': { boxSizing: 'border-box' }, '::selection': { background: alpha(t.primary, .25) } } },
+      MuiCssBaseline: { styleOverrides: { body: { backgroundImage: isGlass ? glassPageBackground : 'none', backgroundAttachment: isGlass ? 'fixed' : undefined }, '*': { boxSizing: 'border-box' }, '::selection': { background: alpha(t.primary, .25) } } },
       MuiButtonBase: { defaultProps: { disableRipple: true } },
-      MuiAppBar: { styleOverrides: { root: { backgroundImage: 'none' } } },
+      MuiAppBar: { styleOverrides: { root: { backgroundImage: 'none', ...(isGlass ? { background: glassSurface, backdropFilter: glassBackdrop, WebkitBackdropFilter: glassBackdrop, borderColor: t.border } : {}) } } },
       MuiButton: {
         defaultProps: { disableElevation: true },
         styleOverrides: {
-          root: { minHeight: t.controlHeight, borderRadius: t.radius, paddingInline: compact ? 12 : 15, boxShadow: 'none' },
-          outlined: { borderColor: t.border },
+          root: { minHeight: t.controlHeight, borderRadius: isGlass ? 999 : t.radius, paddingInline: compact ? 12 : 15, boxShadow: 'none' },
+          outlined: { borderColor: t.border, ...(isGlass ? { background: alpha(t.surfaceRaised, .72), backdropFilter: 'blur(18px)' } : {}) },
           containedPrimary: t.panelStyle === 'glow' ? { boxShadow: `0 0 22px ${alpha(t.primary, .16)}` } : {},
         },
       },
-      MuiIconButton: { styleOverrides: { root: { borderRadius: t.radius } } },
-      MuiPaper: { styleOverrides: { root: { backgroundImage: 'none', border: `1px solid ${t.border}` }, elevation1: { boxShadow: panelShadow } } },
-      MuiCard: { styleOverrides: { root: { backgroundColor: t.surface, boxShadow: panelShadow, borderColor: t.border } } },
+      MuiIconButton: { styleOverrides: { root: { borderRadius: isGlass ? 999 : t.radius } } },
+      MuiPaper: { styleOverrides: { root: { backgroundImage: 'none', border: `1px solid ${t.border}`, ...(isGlass ? { background: glassSurface, backdropFilter: glassBackdrop, WebkitBackdropFilter: glassBackdrop, boxShadow: glassShadow } : {}) }, elevation1: { boxShadow: panelShadow } } },
+      MuiCard: { styleOverrides: { root: { backgroundColor: isGlass ? 'transparent' : t.surface, ...(isGlass ? { background: glassSurface, backdropFilter: glassBackdrop, WebkitBackdropFilter: glassBackdrop } : {}), boxShadow: panelShadow, borderColor: t.border } } },
       MuiOutlinedInput: {
         styleOverrides: {
           root: {
             minHeight: t.controlHeight,
-            borderRadius: t.radius,
-            backgroundColor: t.surfaceRaised,
+            borderRadius: isGlass ? 999 : t.radius,
+            backgroundColor: isGlass ? t.surfaceRaised : t.surfaceRaised,
+            ...(isGlass ? { backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' } : {}),
             '& .MuiOutlinedInput-notchedOutline': { borderColor: t.border },
             '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: alpha(t.foreground, 0.34) },
             '&.Mui-focused': { boxShadow: `0 0 0 3px ${alpha(t.primary, 0.14)}` },
@@ -224,14 +242,14 @@ export function createAppTheme(t: ThemeTokens) {
         },
       },
       MuiInputLabel: { styleOverrides: { root: { color: t.muted } } },
-      MuiChip: { styleOverrides: { root: { borderRadius: Math.max(4, t.radius - 2), fontWeight: 650 } } },
-      MuiDialog: { styleOverrides: { paper: { borderRadius: t.radius + 4, boxShadow: panelShadow } } },
-      MuiMenu: { styleOverrides: { paper: { padding: 4, backgroundColor: t.surfaceRaised, boxShadow: panelShadow } } },
-      MuiMenuItem: { styleOverrides: { root: { borderRadius: Math.max(4, t.radius - 2), minHeight: compact ? 32 : 36 } } },
+      MuiChip: { styleOverrides: { root: { borderRadius: isGlass ? 999 : Math.max(4, t.radius - 2), fontWeight: 650, ...(isGlass ? { backdropFilter: 'blur(14px)' } : {}) } } },
+      MuiDialog: { styleOverrides: { paper: { borderRadius: isGlass ? 32 : t.radius + 4, boxShadow: panelShadow, ...(isGlass ? { background: glassSurface, backdropFilter: glassBackdrop, WebkitBackdropFilter: glassBackdrop } : {}) } } },
+      MuiMenu: { styleOverrides: { paper: { padding: 4, backgroundColor: isGlass ? 'transparent' : t.surfaceRaised, boxShadow: panelShadow, ...(isGlass ? { background: glassSurface, backdropFilter: glassBackdrop, WebkitBackdropFilter: glassBackdrop } : {}) } } },
+      MuiMenuItem: { styleOverrides: { root: { borderRadius: isGlass ? 18 : Math.max(4, t.radius - 2), minHeight: compact ? 32 : 36 } } },
       MuiTabs: { styleOverrides: { indicator: { height: 2, borderRadius: 2 } } },
-      MuiTab: { styleOverrides: { root: { textTransform: 'none', minHeight: compact ? 38 : 42, fontWeight: 650 } } },
+      MuiTab: { styleOverrides: { root: { textTransform: 'none', minHeight: compact ? 38 : 42, fontWeight: 650, borderRadius: isGlass ? 999 : undefined } } },
       MuiTableCell: { styleOverrides: { root: { borderColor: t.border, paddingTop: compact ? 8 : 12, paddingBottom: compact ? 8 : 12 } } },
-      MuiTooltip: { styleOverrides: { tooltip: { background: isDark ? '#f4f4f5' : '#111827', color: isDark ? '#111827' : '#fff', fontSize: 12, borderRadius: Math.max(4, t.radius - 2) } } },
+      MuiTooltip: { styleOverrides: { tooltip: { background: isDark ? '#f4f4f5' : '#111827', color: isDark ? '#111827' : '#fff', fontSize: 12, borderRadius: isGlass ? 14 : Math.max(4, t.radius - 2) } } },
     },
   })
 }
