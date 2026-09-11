@@ -1,6 +1,12 @@
 import { alpha, createTheme } from '@mui/material/styles'
 import { createAppTheme, presets, type ThemeTokens } from './theme'
 
+declare module '@mui/material/Chip' {
+  interface ChipPropsVariantOverrides {
+    soft: true
+  }
+}
+
 // Reconstructed from Minimal's public demo/docs and MIT material-kit implementation.
 // Kept as an ordinary MUI theme so existing MUI screens can adopt it without
 // depending on Minimal's page/layout components.
@@ -87,7 +93,19 @@ export function createMinimalTheme(tokens: ThemeTokens) {
           head: { color: tokens.muted, fontSize: 14, fontWeight: 600, borderBottom: 0 },
         },
       },
-      MuiChip: { styleOverrides: { root: { borderRadius: 8, fontWeight: 700 }, sizeSmall: { height: 24 } } },
+      MuiChip: {
+        styleOverrides: { root: { borderRadius: 8, fontWeight: 700 }, sizeSmall: { height: 24 } },
+        variants: [{
+          props: { variant: 'soft' },
+          style: ({ theme }: any) => ({
+            color: theme.palette.text.primary,
+            backgroundColor: alpha(theme.palette.text.secondary, .10),
+            '&.MuiChip-colorSuccess': { color: theme.palette.success.dark, backgroundColor: alpha(theme.palette.success.main, .16) },
+            '&.MuiChip-colorError': { color: theme.palette.error.dark, backgroundColor: alpha(theme.palette.error.main, .16) },
+            '&.MuiChip-colorWarning': { color: theme.palette.warning.dark, backgroundColor: alpha(theme.palette.warning.main, .16) },
+          }),
+        }],
+      },
       MuiAvatar: { styleOverrides: { root: { fontWeight: 600 } } },
       MuiDialog: { styleOverrides: { paper: { borderRadius: 16, boxShadow: dropdownShadow } } },
       MuiMenu: { styleOverrides: { paper: { borderRadius: 12, boxShadow: dropdownShadow, padding: 4 } } },
