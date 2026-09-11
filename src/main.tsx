@@ -4,8 +4,9 @@ import { Box, Button, ButtonGroup, CssBaseline, GlobalStyles, Stack, Typography 
 import ThemeLab from './ThemeLab'
 import ExactMaiaDemo from './ExactMaiaDemo'
 import GlassChatDemo from './GlassChatDemo'
+import MinimalDemo from './MinimalDemo'
 
-type DemoView = 'theme-lab' | 'shadcn-mui' | 'glass-chat'
+type DemoView = 'theme-lab' | 'shadcn-mui' | 'glass-chat' | 'minimal'
 
 function App() {
   const [view, setView] = useState<DemoView>('theme-lab')
@@ -29,12 +30,13 @@ function App() {
               <Button variant={view === 'theme-lab' ? 'contained' : 'outlined'} onClick={() => setView('theme-lab')}>Theme Lab</Button>
               <Button variant={view === 'shadcn-mui' ? 'contained' : 'outlined'} onClick={() => setView('shadcn-mui')}>Exact Maia / MUI</Button>
               <Button variant={view === 'glass-chat' ? 'contained' : 'outlined'} onClick={() => setView('glass-chat')}>Material Glass Chat</Button>
+              <Button variant={view === 'minimal' ? 'contained' : 'outlined'} onClick={() => setView('minimal')}>Minimal / MUI</Button>
             </ButtonGroup>
           </Box>
         </Stack>
       </Box>
       <Box sx={{ width: '100%', maxWidth: '100vw', minWidth: 0, overflowX: 'hidden' }}>
-        {view === 'theme-lab' ? <ThemeLab /> : view === 'shadcn-mui' ? <ExactMaiaDemo /> : <GlassChatDemo />}
+        {view === 'theme-lab' ? <ThemeLab /> : view === 'shadcn-mui' ? <ExactMaiaDemo /> : view === 'glass-chat' ? <GlassChatDemo /> : <MinimalDemo />}
       </Box>
     </Box>
   </>
